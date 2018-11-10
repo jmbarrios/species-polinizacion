@@ -73,9 +73,10 @@ species_with_spid <- responseData[['data']] %>%
   bind_rows()
 
 # Download all the observations for a given specie ----
+idSpecie <- 63761  # occurrences for Salvia hintonii
 query <- list(
   grid_res = 16,
-  id = 63761, # occurrences for Salvia hintonii
+  id = idSpecie,
   idtime = 1541701790375,
   sfecha = 'true',
   sfosil = 'true'
@@ -92,3 +93,22 @@ if (httr::status_code(response) == 200 &
 }
 species_occurrences <- responseData[['data']] %>% 
   bind_rows() 
+
+# create point geometries from response data
+species_occurrence_sf <- species_occurrences %>% 
+  pull(json_geom) %>% 
+  map(jsonlite::fromJSON) %>% 
+  map(~st_point(.x$coordinates)) %>%
+  st_sfc()
+
+# create dataset with geometry
+species_occurrences <- species_occurrences %>% 
+  st_sf(., species_occurrence_sf) %>% 
+  select(-json_geom)
+
+# Save the occurrences as csv
+species_occurrences %>% st_write(dsn = paste0(idSpecie,"_occurrence_data.csv"),
+         layer_options = "GEOMETRY=AS_XY",
+         delete_dsn = TRUE)
+# Save the occurrences as Shapefile
+species_occurrences %>% st_write(paste0(idSpecie,"_occurrence_data.shp"))
