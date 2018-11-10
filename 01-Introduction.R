@@ -99,7 +99,7 @@ species_occurrence_sf <- species_occurrences %>%
   pull(json_geom) %>% 
   map(jsonlite::fromJSON) %>% 
   map(~st_point(.x$coordinates)) %>%
-  st_sfc()
+  st_sfc(crs = 4326)
 
 # create dataset with geometry
 species_occurrences <- species_occurrences %>% 
@@ -111,4 +111,5 @@ species_occurrences %>% st_write(dsn = paste0(idSpecie,"_occurrence_data.csv"),
          layer_options = "GEOMETRY=AS_XY",
          delete_dsn = TRUE)
 # Save the occurrences as Shapefile
-species_occurrences %>% st_write(paste0(idSpecie,"_occurrence_data.shp"))
+species_occurrences %>% st_write(paste0(idSpecie,"_occurrence_data.shp"),
+                                 delete_dsn = TRUE)
