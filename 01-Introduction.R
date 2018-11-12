@@ -111,5 +111,69 @@ species_occurrences %>% st_write(dsn = paste0(idSpecie,"_occurrence_data.csv"),
          layer_options = "GEOMETRY=AS_XY",
          delete_dsn = TRUE)
 # Save the occurrences as Shapefile
-species_occurrences %>% st_write(paste0(idSpecie,"_occurrence_data.shp"),
-                                 delete_dsn = TRUE)
+# species_occurrences %>% st_write(paste0(idSpecie,"_occurrence_data.shp"),
+#                                 delete_dsn = TRUE)
+
+# Join information between SPECIES and SNIB data ----
+# Working with the Salvia SNIB registries
+salvia_data_snib <- read_csv("SNIBEjemplares_20181112_110412.zip")
+
+salvia_data_snib <- salvia_data_snib %>% select(
+  idejemplar, 
+  # llavenombre, 
+  ordenvalido, 
+  # sistemaclasificacionfamiliavalido, 
+  genero, 
+  generovalido, 
+  # sistemaclasificaciongenerocatvalido, 
+  # autoraniogenerocatvalido, 
+  estatustax, 
+  # epitetoespecificooriginal, 
+  # epitetoespecificocatvalido, 
+  # catdiccespeciecatvalido, 
+  # autoranioespecieoriginal, 
+  # autoranioespeciecatvalido, 
+  autor,
+  autorvalido,
+  # siglascoleccion, 
+  coleccion, 
+  # nombrecoleccion_1, 
+  # siglasinstitucion, 
+  institucion, 
+  paiscoleccion, 
+  ambiente, 
+  # ambientenombre, 
+  validacionambiente,
+  localidad, 
+  # observacionesejemplar, 
+  subgrupobio, 
+  grupobio, 
+  # paisoriginal, 
+  paismapa, 
+  # estadooriginal, 
+  estadomapa, 
+  altitudmapa, 
+  datum, 
+  latitud, 
+  longitud, 
+  numcatalogo, 
+  numcolecta, 
+  procedenciaejemplar, 
+  # altitudinicialejemplar, 
+  determinador, 
+  colector, 
+  aniocolecta, 
+  mescolecta, 
+  diacolecta, 
+  urlejemplar
+)
+
+# Load occurrences for Salvia hintonii (spid 63761)
+salvia_hintonii_data <- read_csv("63761_occurrence_data.csv") %>%
+  select(urlejemplar, fechacolecta)
+
+# Join infor from snib and SPECIES to review
+salvia_hintonii_snib <- salvia_hintonii_data %>% 
+  left_join(salvia_data_snib)
+
+salvia_hintonii_snib %>% write_csv('63761_review_data.csv')
